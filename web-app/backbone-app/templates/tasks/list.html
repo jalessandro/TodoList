@@ -1,0 +1,20 @@
+<table class="table">
+	<thead>
+		<tr>
+			<th>Title</th>
+			<th>Priority</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<% _.each(tasks.models, function(task){ %>
+	<tr>
+		<td> <%= task.get('title') %> </td>
+		<td> <span class="label label-<%= task.getPriority().toLowerCase() %>"><%= task.getPriority() %></span> </td>
+		<td> 
+			<i class="icon-search action" data-toggle="tooltip" title="Task Details" data-task-id="<%=task.id%>" data-action="showTaskDetails"/>
+			<i class="icon-edit action" data-toggle="tooltip" title="Edit Task" data-task-id="<%=task.id%>" data-action="editTask"/>
+			<i class="icon-trash action" data-toggle="tooltip" title="Remove Task" data-task-id="<%=task.id%>" data-action="removeTask"/> 
+		</td>
+	</tr>
+	<% }); %>
+</table>
