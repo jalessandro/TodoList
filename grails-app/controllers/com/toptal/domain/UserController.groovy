@@ -4,7 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException
 
 class UserController {
 
-    static allowedMethods = [show: 'GET', save: "POST", update: "PUT", delete: "DELETE"]
+    static allowedMethods = [show: 'GET', save: "POST", update: "PUT", delete: "DELETE", loginUser: "POST"]
 	
 	def show(Long id) {
 		
@@ -110,4 +110,25 @@ class UserController {
 			}
         }
     }
+	
+	def loginUser() {
+		
+		def result = [success: true]
+		
+		def email = params.email
+		def password = params.password
+		
+		def user = User.findByEmail(email)
+		
+		if (!user || (user.password != password)) {
+			result.success = false
+			result.error = message(code: 'loginFailed')
+		} else {
+			result.loggedUser = user
+		}
+		
+		render(contentType: 'text/json') {
+			result
+		}
+	}
 }

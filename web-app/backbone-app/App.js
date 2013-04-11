@@ -14,24 +14,11 @@ var App = {
 		  cache: false
 		});
 		this.router = new AppRouter();
-		this.isIE = this.isAnIEBrowser();
-		Backbone.history.start();
-		
 		this.eventHandler = _.clone(Backbone.Events);
+		
+		Backbone.history.start();
 	},
 
-	isAnIEBrowser: function() {
-		var rv = -1;
-		if (navigator.appName === 'Microsoft Internet Explorer') {
-		    var ua = navigator.userAgent;
-		    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-		    if (re.exec(ua) != null) {
-		    	rv = parseFloat( RegExp.$1 );
-		    }
-		}
-		return (rv != -1);
-	},
-	
 	isDefined: function(variable) {
 		return !_.isUndefined(variable) && !_.isNull(variable);
 	},
@@ -44,10 +31,6 @@ var App = {
 		var navigateOptions = {trigger: true};
 		_.extend(navigateOptions, options);
 		this.router.navigate(url, navigateOptions);
-	},
-	
-	goBack: function() {
-		window.history.back();
 	},
 	
 	log: function(object) {
@@ -97,109 +80,12 @@ var App = {
 			this.views.MainView.disableState(state);
 		}
     },
-	
-	/**
-	 * Loads a collection from the server.
-	 * options: 
-	 *  - context: Object context which will execute the callbacks. If not defined the currentView will be the context of the callbacks.
-	 *  - success: Success callback.
-	 *  - callbackParams: Arguments to attach to the Success Callback.
-	 * */	
-	populateCollectionWithContext: function(currentView, collectionsToPopulate, params, options) {
-		
-		options || (options = {});
-		var requestCount = _.size(collectionsToPopulate);
-		App.log('App.populateCollection() Request Count: ' + requestCount);
-		
-		var thiz = options.context || currentView; // Holds the context to execute the callbacks
-		
-		var failureCallback = (options.error) ? $.proxy(options.error, thiz) : null;
-		
-		var successCallback = function(collection, response) {
-			
-			collection.reset();
-			
-			if (!App.isDefined(collection.metadata)) {
-				collection.metadata = {};
-			}
-			
-			_.extend(collection.metadata, response.metadata);
-			
-			var responseList = response.data;
-			if (App.isDefined(collection.metadata.parseFunction)) {
-				var parseFunction = $.proxy(collection.metadata.parseFunction, collection);
-				responseList = parseFunction(response.data);
-			}
-			
-			collection.add(responseList);
-			
-			requestCount = requestCount - 1;
-			if (requestCount == 0) {
-				if (!App.isDefined(options.success)) {
-					currentView.render();
-				}
-				else {
-					var successFunction = $.proxy(options.success, thiz);
-					successFunction(options.callbackParams);
-				}
-			}
-		};
-		
-		var errorOptions = {success: successCallback, failure: failureCallback};
-		
-		_.each(collectionsToPopulate, function(collectionToPopulate)
-		{
-			App.log('collectionToPopulate: ' + collectionToPopulate.url);
-			
-			collectionToPopulate.fetch({ data: params,
-				success: successCallback,
-				error: function(collection, response, options) {
-					errorOptions.success = options.success;
-					App.handleErrorResponse(response, errorOptions);
-				}
-			});
-		});
-	},
-	
-	/**
-	 * Loads a model from the server.
-	 * options: 
-	 * 	- success: Success callback.
-	 * 	- error: Error callback.
-	 *  - params: Arguments to attach to the fetch.
-	 *  - context: Object context which will execute the callbacks.
-	 *  - parse: Method to parse the response.
-	 * */
-	loadModel: function(model, options) {
-		
-		// Sets the parse method
-		model.parse = (options.parse) ? options.parse : function(rsp) {
-			var attrs = rsp.data;
-			attrs._metadata = rsp.metadata;
-			return attrs;
-		};
-		
-		var thiz = options.context || this; // Holds the context to execute the callbacks
-		
-		var failureCallback = (options.error) ? $.proxy(options.error, thiz) : null;
-		
-		var successCallback = ((options.success) ? $.proxy(options.success, thiz) : function(model, response) {
-			App.log(model);
-		});
-		
-		var errorOptions = {success: successCallback, failure: failureCallback};
-				
-		var opts = {
-			data: options.params || {},
-			success: successCallback,
-			error: function(model, response, options) {
-				errorOptions.success = options.success;
-				App.handleErrorResponse(response, errorOptions);
-			}
-		};
-		
-		model.fetch(opts);
-	},
+    
+    disableAllMainStates: function() {
+    	if (this.views.MainView) {
+			this.views.MainView.disableAllStates();
+		}
+    },
 	
 	/**
 	 * Makes an ajax get call.
@@ -287,30 +173,14 @@ var App = {
 	clearApplication: function() {
 		
 		App.loggedUser = null;
-		App.currentBranchOfficeId = null;
-		App.hasPendingNotifications = null;
 		
 		App.log('Removing all application views');
 		_.each(_.keys(this.showingViews), function(elementId) {
 			App.disposeView(elementId);
 		});
-	},
-	
-	/**
-	 * Adds a display function (to change visual elements) to the queue in the setTimeout 0.
-	 * options:
-	 *  - context: The context where the callback will be called.
-	 *  - args: Arguments to pass to the callback.
-	 * */
-	addToDisplayQueue: function(callback, options) {
 		
-		var thiz = options.context || this;
-		var callback = $.proxy(callback, thiz);
-		
-		setTimeout(function() {
-			(options.args) ? callback(options.args) : callback();
-		}, 0);
-	},
+		App.views.MainView = null;
+	}	
 };
 
 _.extend(App, Backbone.Events);

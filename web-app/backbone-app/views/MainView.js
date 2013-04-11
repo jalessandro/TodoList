@@ -4,6 +4,7 @@ App.classes.MainView = Backbone.View.extend({
 	
 	events: {
 		'click #edit-user': 'editUser',
+		'click #logout': 'logout',
 		'click ul.nav li a[data-action]': 'processAction'
 	},
 	
@@ -16,6 +17,14 @@ App.classes.MainView = Backbone.View.extend({
 	
 	editUser: function() {
 		App.redirect('#edit-user-settings');
+		return false;
+	},
+	
+	logout: function() {
+		
+		App.clearApplication();
+		
+		App.redirect('#login');
 		return false;
 	},
 	
@@ -43,5 +52,9 @@ App.classes.MainView = Backbone.View.extend({
 	
 	disableState: function(state) {
 		$("ul[data-state='" + state + "']").hide();
+	},
+	
+	disableAllStates: function() {
+		$("ul[data-state]").hide();
 	}
 });

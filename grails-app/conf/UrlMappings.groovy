@@ -6,6 +6,8 @@ class UrlMappings {
 		
 		"/task-priorities"(controller: "taskPriorities", action: "index")
 		
+		"/login-user"(controller: "user", action: "loginUser")
+		
 		"/user/$id?"(resource:"user")
 		
 		"/user/$userId/task/$id?"(resource:"task")

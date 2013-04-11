@@ -35,7 +35,7 @@ class TaskController {
 
     def save(Long userId) {
         def taskInstance = new Task(params)
-		taskInstance.owner = User.get(userId);
+		taskInstance.owner = User.get(userId)
 		
         if (!taskInstance.save(flush: true)) {
 			

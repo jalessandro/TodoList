@@ -10,12 +10,17 @@ App.classes.users.EditView = Backbone.View.extend({
 	render: function() {
 		
 		var compiledTemplate = App.templates.users.editTemplate;
+		if (this.model.isNew()) {
+			compiledTemplate = App.templates.users.createTemplate;
+		}
+		
 		this.$el.html(compiledTemplate);
 		
 		this.updateForm();
 		
 		if (!this.model.isNew()) {
 			App.setMainTitle('Edit User');
+			App.disableAllMainStates();
 		} else {
 			App.setMainTitle('Create User');
 		}
@@ -55,7 +60,11 @@ App.classes.users.EditView = Backbone.View.extend({
 	},
 	
 	cancelEdition: function() {
-		App.redirect('#home/1');
+		if (this.model.isNew()) {
+			App.redirect('#login');
+		} else {
+			App.redirect('#home/1');
+		}
 		return false;
 	}
 });

@@ -24,6 +24,8 @@ App.classes.tasks.EditView = Backbone.View.extend({
 		} else {
 			App.setMainTitle('Create Task');
 		}
+		
+		App.disableAllMainStates();
 	},
 	
 	updateForm: function() {
@@ -56,7 +58,7 @@ App.classes.tasks.EditView = Backbone.View.extend({
 	},
 	
 	cancelEdition: function() {
-		App.redirect('#home/' + this.model.getOwnerId() + '/task');
+		App.redirect('#home/' + this.model.getOwnerId());
 		return false;
 	}
 });

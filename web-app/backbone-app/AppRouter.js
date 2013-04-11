@@ -16,7 +16,7 @@ var AppRouter = Backbone.Router.extend({
 		'home/:userId/task/:taskId' : 'showTask',
 		'home/:userId/task/:taskId/edit' : 'showEditTask',
 		
-		'register': 'showEditUser',
+		'register': 'showCreateUser',
 		'edit-user-settings': 'showEditLoggedUser',
 		
 		'loadApp' : 'showMain',
@@ -39,26 +39,21 @@ var AppRouter = Backbone.Router.extend({
 		});
 	},
 	
+	showLogin: function() {
+		App.views.LoginView = App.showView(App.classes.LoginView, '#container');
+		App.views.LoginView.render();
+	},
+	
 	showMain: function() {
 		
-		var successCallback = function() {
-			this._defineMainView();
-			App.redirect('#home/1', {replace: true});
-		};
+		this._defineMainView();
 		
-		var fetchSuccessCallback = $.proxy(successCallback, this);
-		
-		var options = {
-			success: fetchSuccessCallback
-		};
-		
-		App.loggedUser = new UserModel();
-		App.loggedUser.set('id', 1);
-		App.loggedUser.fetch(options);
-		
+		App.redirect('#home/' + App.loggedUser.id, {replace: true});
 	},
 	
 	showHome: function(userId) {
+		
+		this._defineMainView();
 				
 		var constructorOptions = {collection: App.loggedUser.tasks};
 		App.views.TaskListView = App.showView(App.classes.tasks.ListView, '#body-container', constructorOptions);
@@ -71,6 +66,9 @@ var AppRouter = Backbone.Router.extend({
 	},
 	
 	showTask: function(userId, taskId) {
+		
+		this._defineMainView();
+		
 		var task = App.loggedUser.tasks.get(taskId);
 		
 		var constructorOptions = {model: task};
@@ -79,6 +77,9 @@ var AppRouter = Backbone.Router.extend({
 	},
 	
 	showEditTask: function(userId, taskId) {
+		
+		this._defineMainView();
+		
 		var task = App.loggedUser.tasks.get(taskId);
 		
 		var constructorOptions = {model: task};
@@ -87,6 +88,9 @@ var AppRouter = Backbone.Router.extend({
 	},
 	
 	showCreateTask: function(userId) {
+		
+		this._defineMainView();
+		
 		var task = new TaskModel();
 		task.ownerId = userId;
 		
@@ -95,15 +99,19 @@ var AppRouter = Backbone.Router.extend({
 		App.views.EditTaskView.render();
 	},
 	
-	showEditUser: function() {
+	showCreateUser: function() {
+		
 		var user = new UserModel();
 		
 		var constructorOptions = {model: user};
-		App.views.EditUserView = App.showView(App.classes.users.EditView, '#body-container', constructorOptions);
+		App.views.EditUserView = App.showView(App.classes.users.EditView, '#container', constructorOptions);
 		App.views.EditUserView.render();
 	},
 	
 	showEditLoggedUser: function() {
+		
+		this._defineMainView();
+		
 		var user = App.loggedUser;
 		
 		var constructorOptions = {model: user};
@@ -115,17 +123,21 @@ var AppRouter = Backbone.Router.extend({
 	 * Default handler, executed when there is no matching route.
 	 */
 	defaultAction : function(actions) {
-		
-		this.showMain();
+		App.redirect('#login');
 	},
 	
 	// Private methods
 	
 	_defineMainView: function() {
+		
+		if (!App.loggedUser) {
+			// Redirect to Login
+			App.redirect('#login');
+		}
+		
 		if (!App.isDefined(App.views.MainView)) {
 			App.views.MainView = App.showView(App.classes.MainView, '#container');
 			App.views.MainView.render();
 		}
 	}
-
 });

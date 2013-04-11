@@ -4,10 +4,6 @@ var UserModel = Backbone.Model.extend({
 	
 	initialize: function() {
 		this.tasks = new TasksCollection();
-		this.once('change:id', this.updateCollectionOwnerId, this);
-	},
-	
-	updateCollectionOwnerId: function() {
 		this.tasks.ownerId = this.id;
 	},
 	

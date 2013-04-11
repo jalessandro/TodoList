@@ -4,6 +4,7 @@ App.classes.tasks.ItemView = Backbone.View.extend({
 	
 	initialize: function() {
 		App.eventHandler.once('edit-task', this.editTask, this);
+		App.eventHandler.once('task-list', this.taskList, this);
 	},
 	
 	render: function() {
@@ -22,6 +23,11 @@ App.classes.tasks.ItemView = Backbone.View.extend({
 	
 	editTask: function() {
 		App.redirect('#home/' + this.model.getOwnerId() + '/task/' + this.model.id + '/edit');
+		return false;
+	},
+	
+	taskList: function() {
+		App.redirect('#home/' + this.model.getOwnerId());
 		return false;
 	}
 	
